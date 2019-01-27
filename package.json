@@ -1,0 +1,25 @@
+{
+  "name": "nodejs-film-service",
+  "version": "1.0.0",
+  "description": "CRUD Api for film project",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": {
+    "node": "8.11.0",
+    "npm": "5.6.0"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "cors": "^2.8.5",
+    "express": "^4.16.4",
+    "express-promise-router": "^3.0.3",
+    "pg": "^7.8.0",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.2"
+  }
+}
