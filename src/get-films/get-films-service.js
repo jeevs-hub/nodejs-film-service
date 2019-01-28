@@ -1,24 +1,22 @@
 const Router = require('express-promise-router');
 const router = new Router();
-const VerifyToken = require('../auth/verify-token');
 const rp = require('request-promise');
 
 module.exports = router;
 
-router.get("/all", async (req, res) => {
-    res.send("hello worldl")
-    // const client = await db.client();
-    // try {
-    //     const { rows } = await db.query(`select * from users`);
-    //     res.send(rows);
-    // } catch (e) {
-    //     console.log("error logging in ", (e))
-    //     res.status(500).send("Internal Server Error");
-    // } finally {
-    //     client.release();
-    // }
+router.get("/search", (req, res) => {
+    rp.get(`${process.env.MOVIE_DB_API_URL}search/movie?api_key=${process.env.MOVIE_DB_API_KEY}&query=${req.query.q}`)
+        .then((movieDbFilmsList) => {
+            const resultList = JSON.parse(movieDbFilmsList).results.map((film) =>
+                ({
+                    id: film.id,
+                    title: film.title,
+                    year: film.release_date
+                }))
+            res.json(resultList)
+        });
 });
 
-router.get("/ping", VerifyToken, async (req, res) => {
+router.get("/ping", async (req, res) => {
     res.send("pong " + req.userId);
 });

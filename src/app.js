@@ -1,13 +1,14 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const app = express();
 const cors = require('cors');
-
 const port = process.env.PORT;
 const mountRoutes = require("./routes/index");
+const VerifyToken = require('./auth/verify-token');
 
-app.use(cors()) 
+const app = express();
 
+app.use(VerifyToken);
+app.use(cors()) ;
 app.use(bodyParser.json({ limit: "10mb" }));
 
 mountRoutes(app);
