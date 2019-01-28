@@ -7,8 +7,8 @@ const VerifyToken = require('./auth/verify-token');
 
 const app = express();
 
+app.use(cors());
 app.use(VerifyToken);
-app.use(cors()) ;
 app.use(bodyParser.json({ limit: "10mb" }));
 
 mountRoutes(app);
