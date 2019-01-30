@@ -3,7 +3,7 @@ const bodyParser = require("body-parser");
 const cors = require('cors');
 const port = process.env.PORT;
 const mountRoutes = require("./routes/index");
-const VerifyToken = require('./auth/verify-token');
+const VerifyToken = require('./verify-token');
 
 const app = express();
 

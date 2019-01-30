@@ -4,7 +4,7 @@ const rp = require('request-promise');
 
 module.exports = router;
 
-router.get("/search", (req, res) => {
+router.get("/", (req, res) => {
     rp.get(`${process.env.MOVIE_DB_API_URL}search/movie?api_key=${process.env.MOVIE_DB_API_KEY}&query=${req.query.q}`)
         .then((movieDbFilmsList) => {
             const resultList = JSON.parse(movieDbFilmsList).results.map((film) =>
