@@ -10,8 +10,7 @@ router.get("/", (req, res) => {
             const resultList = JSON.parse(movieDbFilmsList).results.map((film) =>
                 ({
                     id: film.id,
-                    title: film.title,
-                    year: film.release_date
+                    label: film.title
                 }))
             res.json(resultList)
         });
