@@ -35,9 +35,10 @@ router.get("/:filmId", (req, res) => {
                     summary: data.overview,
                     imdbTitle: data.imdb_id,
                     genres: data.genres.map((genre) => genre.name),
-                    imgUrl: data.belongs_to_collection.post_path
+                    imgUrl: data.belongs_to_collection.post_path,
+                    film_api_key: filmData.id
                 }
-                res.json(formattedData);
+                res.json(data);
             } else {
                 res.status(400).json({ error: { status: 400, message: `Film with id ${filmId} not found`  } });
             }
