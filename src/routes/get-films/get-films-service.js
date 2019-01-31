@@ -38,7 +38,7 @@ router.get("/:filmId", (req, res) => {
                     imgUrl: data.belongs_to_collection.post_path,
                     film_api_key: filmData.id
                 }
-                res.json(data);
+                res.json(formattedData);
             } else {
                 res.status(400).json({ error: { status: 400, message: `Film with id ${filmId} not found`  } });
             }
