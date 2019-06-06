@@ -47,7 +47,7 @@ router.get("/:filmId", (req, res) => {
                     imdbTitle: data.imdb_id,
                     imgUrl: theImage,
                     genres: data.genres.map((genre) => genre.name),
-                    film_api_key: filmData.id
+                    film_api_key: data.id
                 }
                 res.json(formattedData);
             } else {
