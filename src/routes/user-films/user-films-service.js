@@ -10,8 +10,13 @@ router.get("/", async (req, res) => {
     const { userId } = req;
     const client = await db.client();
     try {
-        const rows = await db.query(`select * from media_content`, []);
-        res.send(rows);
+        const { rows } = await db.query(`select * from films where user_id = $1 order by watch_by asc`, [userId]);
+        const result = rows.map((r) => {
+            r.film_details.watchByDate = r.watch_by;
+            r.film_details.filmApiId = r.film_api_id;
+            return r.film_details;
+        })
+        res.send(result);
     } catch (e) {
         console.log("error logging in ", e)
         res.send({ status: 500, message: `Something went wrong at our end.` })
