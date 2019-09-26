@@ -15,6 +15,7 @@ router.get("/", async (req, res) => {
         const result = rows.map((r) => {
             r.film_details.watchByDate = r.watch_by;
             r.film_details.filmApiId = r.film_api_id;
+            r.film_details.imgUrl = r.film_details.photoUrl
             r.film_details.id = r.id
             return r.film_details;
         })
