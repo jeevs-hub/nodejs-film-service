@@ -11,9 +11,11 @@ router.get("/", async (req, res) => {
     const client = await db.client();
     try {
         const { rows } = await db.query(`select * from films where user_id = $1 order by watch_by asc`, [userId]);
+        console.log("rows ", JSON.stringify(rows))
         const result = rows.map((r) => {
             r.film_details.watchByDate = r.watch_by;
             r.film_details.filmApiId = r.film_api_id;
+            r.film_details.id = r.id
             return r.film_details;
         })
         res.send(result);
