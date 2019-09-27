@@ -17,7 +17,7 @@ router.get("/", async (req, res) => {
             r.film_details.filmApiId = r.film_api_id;
             r.film_details.imgUrl = r.film_details.photoUrl;
             r.film_details.id = r.id;
-            r.name = r.film_name;
+            r.film_details.name = r.film_name;
             return r.film_details;
         })
         res.send(result);
