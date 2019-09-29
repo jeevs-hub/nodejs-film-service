@@ -6,14 +6,19 @@ const { doesFilmExists } = require("../../utils/helperMethods.js");
 
 module.exports = router;
 
-router.get("/:offset/:limit/:filter", async (req, res) => {
-    const { userId, params } = req;
-    const { offset, limit, filter } = params;
+// router.get("/:offset/:limit/:filter", async (req, res) => {
+router.get("/", async (req, res) => {
+    const { userId, query } = req;
+    const { offset, limit, filter, order, orderAsc } = query;
+    console.log("the qry ", orderAsc)
     const client = await db.client();
     try {
-        const filterQuery = `(select * from films where user_id = $1 and (film_name like '%' || $4 || '%') offset $2 limit $3) order by film_name asc`;
+        const filterQuery = `(select * from films where user_id = $1 and (film_name like '%' || $4 || '%') offset $2 limit $3) 
+        order by ${getOrderBy(order)} ${orderAsc === 'true' ? 'asc' : 'desc'}`;
+        console.log("filter query ", filterQuery)
         const countQuery = `(select count (*) from films where user_id = $1 and film_name like '%' || $2 || '%')`;
         const  filterReq = db.query(filterQuery, [userId, offset, limit, filter]);
+        // const  filterReq = db.query(filterQuery, [userId, offset, limit, filter, order]);
         const  countReq = db.query(countQuery, [userId, filter]);
 
         let [filterResult, countResult] = await Promise.all([filterReq, countReq]);
@@ -82,3 +87,14 @@ router.put("/updateFilm", async (req, res) => {
         client.release();
     }
 });
+
+
+getOrderBy = (orderby) => {
+    switch (orderby) {
+        case 'films':
+            return 'film_name';
+        default: 
+            return 'film_name';
+
+    }
+}
