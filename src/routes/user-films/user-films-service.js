@@ -63,8 +63,8 @@ router.put("/updateFilm", async (req, res) => {
     console.log("the film id ", id, " the user id ", userId);
     const client = await db.client();
     try {
-        const test = await db.query(`update films set film_details = $1, watch_by = $2 where id = $3 and user_id = $4`, [data, new Date(watchByDate), id, userId]);
-        res.send(test);
+        const {rowCount} = await db.query(`update films set film_details = $1, watch_by = $2 where id = $3 and user_id = $4`, [data, new Date(watchByDate), id, userId]);
+        res.send(rowCount);
     } catch (e) {
         console.log("error logging in ", e)
         res.send({ status: 500, message: `Something went wrong at our end.` })
