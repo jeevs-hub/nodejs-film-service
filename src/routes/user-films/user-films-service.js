@@ -57,7 +57,7 @@ router.post("/addFilm", async (req, res) => {
 
 router.put("/updateFilm", async (req, res) => {
     const { userId, body } = req;
-    const { data, film_api_id, watchByDate, id } = body;
+    const { data, watchByDate, id } = body;
     const filmExists = false;
     // const filmExists = await doesFilmExists(film_api_id, name);
     console.log("the film id ", id, " the user id ", userId);
