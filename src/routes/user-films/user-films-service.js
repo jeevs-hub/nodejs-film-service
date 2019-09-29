@@ -42,9 +42,11 @@ router.post("/addFilm", async (req, res) => {
     } else {
         const client = await db.client();
         try {
-            const filmId = uuidv4();
-            await db.query(`insert into films(id, film_details, watch_by, user_id, film_api_id, film_name) 
+            for (let i = 0; i < 100; i++) {
+                const filmId = uuidv4();
+                await db.query(`insert into films(id, film_details, watch_by, user_id, film_api_id, film_name) 
                              values($1, $2, $3, $4, $5, $6)`, [filmId, data, new Date(watchByDate), userId, film_api_id, filmName]);
+            }
             res.send(filmId);
         } catch (e) {
             console.log("error logging in ", e)
@@ -63,7 +65,7 @@ router.put("/updateFilm", async (req, res) => {
     console.log("the film id ", id, " the user id ", userId);
     const client = await db.client();
     try {
-        const {rowCount} = await db.query(`update films set film_details = $1, watch_by = $2 where id = $3 and user_id = $4`, [data, new Date(watchByDate), id, userId]);
+        const { rowCount } = await db.query(`update films set film_details = $1, watch_by = $2 where id = $3 and user_id = $4`, [data, new Date(watchByDate), id, userId]);
         res.send(rowCount);
     } catch (e) {
         console.log("error logging in ", e)
