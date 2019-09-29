@@ -14,7 +14,7 @@ router.get("/", async (req, res) => {
         console.log("rows ", JSON.stringify(rows))
         const result = rows.map((r) => {
             r.film_details.watchByDate = r.watch_by;
-            r.film_details.filmApiId = r.film_api_id;
+            r.film_details.film_api_id = r.film_api_id;
             r.film_details.imgUrl = r.film_details.photoUrl;
             r.film_details.id = r.id;
             r.film_details.name = r.film_name;
