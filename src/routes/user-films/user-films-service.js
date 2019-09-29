@@ -6,12 +6,18 @@ const { doesFilmExists } = require("../../utils/helperMethods.js");
 
 module.exports = router;
 
-router.get("/", async (req, res) => {
-    const { userId } = req;
+router.get("/:offset/:limit/:filter", async (req, res) => {
+    const { userId, params } = req;
+    const { offset, limit, filter } = params;
     const client = await db.client();
     try {
-        const { rows } = await db.query(`select * from films where user_id = $1 order by watch_by asc`, [userId]);
-        console.log("rows ", JSON.stringify(rows))
+        const filterQuery = `(select * from films where user_id = $1 and (film_name like '%' || $4 || '%') offset $2 limit $3) order by film_name asc`;
+        const countQuery = `(select count (*) from films where user_id = $1 and film_name like '%' || $2 || '%')`;
+        const  filterReq = db.query(filterQuery, [userId, offset, limit, filter]);
+        const  countReq = db.query(countQuery, [userId, filter]);
+
+        let [filterResult, countResult] = await Promise.all([filterReq, countReq]);
+        const { rows } = filterResult;
         const result = rows.map((r) => {
             r.film_details.watchByDate = r.watch_by;
             r.film_details.film_api_id = r.film_api_id;
@@ -20,7 +26,9 @@ router.get("/", async (req, res) => {
             r.film_details.name = r.film_name;
             return r.film_details;
         })
-        res.send(result);
+
+        console.log("the c ", countResult)
+        res.send({data: result, count: countResult.rows[0].count});
     } catch (e) {
         console.log("error logging in ", e)
         res.send({ status: 500, message: `Something went wrong at our end.` })
