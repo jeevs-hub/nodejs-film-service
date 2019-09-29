@@ -45,7 +45,7 @@ router.post("/addFilm", async (req, res) => {
             for (let i = 0; i < 100; i++) {
                 const filmId = uuidv4();
                 await db.query(`insert into films(id, film_details, watch_by, user_id, film_api_id, film_name) 
-                             values($1, $2, $3, $4, $5, $6)`, [filmId, data, new Date(watchByDate), userId, film_api_id, filmName]);
+                             values($1, $2, $3, $4, $5, $6)`, [filmId, data, new Date(watchByDate), userId, film_api_id, `filmName - ${i}`]);
             }
             res.send(filmId);
         } catch (e) {
