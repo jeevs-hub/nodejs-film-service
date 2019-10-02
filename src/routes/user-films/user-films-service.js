@@ -29,7 +29,7 @@ router.get("/", async (req, res) => {
             r.film_details.imgUrl = r.film_details.photoUrl;
             r.film_details.id = r.id;
             r.film_details.name = r.film_name;
-            r.film_details.date = r.release_date;
+            r.film_details.date = new Date(r.release_date).toLocaleString();
             return r.film_details;
         })
 
