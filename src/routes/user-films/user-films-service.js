@@ -13,8 +13,7 @@ router.get("/", async (req, res) => {
     const { offset, limit, filter, order, orderAsc } = query;
     const client = await db.client();
     try {
-        // const filterQuery = `(select * from films where user_id = $1 and (film_name like '%' || $4 || '%') offset $2 limit $3) 
-        const filterQuery = `(select * from films where user_id = $1 offset $2 limit $3) 
+        const filterQuery = `(select * from films where user_id = $1 and (film_name like '%' || $4 || '%') offset $2 limit $3) 
         order by ${getOrderBy(order)} ${orderAsc === 'true' ? 'asc' : 'desc'}`;
         const countQuery = `(select count (*) from films where user_id = $1 and film_name like '%' || $2 || '%')`;
         const filterReq = db.query(filterQuery, [userId, offset, limit]);
