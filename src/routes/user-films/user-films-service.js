@@ -34,7 +34,7 @@ router.get("/", async (req, res) => {
         res.send({ data: result, count: countResult.rows[0].count });
     } catch (e) {
         console.log("error logging in ", e)
-        res.send({ status: 500, message: `Something went wrong at our end.` })
+        res.status(500).send({ status: 500, message: `Something went wrong at our end.` })
     } finally {
         client.release();
     }
@@ -42,7 +42,7 @@ router.get("/", async (req, res) => {
 
 router.post("/addFilm", async (req, res) => {
     const { userId, body } = req;
-    const { data, film_api_id, watchByDate, filmName } = body;
+    const { data, film_api_id, watchByDate, filmName, date } = body;
     const filmExists = false;
     if (filmExists) {
         console.log("the film exists ", film_api_id, " name ", filmName);
@@ -51,12 +51,12 @@ router.post("/addFilm", async (req, res) => {
         const client = await db.client();
         try {
             const filmId = uuidv4();
-            await db.query(`insert into films(id, film_details, watch_by, user_id, film_api_id, film_name) 
-                             values($1, $2, $3, $4, $5, $6)`, [filmId, data, new Date(watchByDate), userId, film_api_id, `filmName - ${i}`]);
+            await db.query(`insert into films(id, film_details, watch_by, user_id, film_api_id, film_name, release_date) 
+                             values($1, $2, $3, $4, $5, $6, $7)`, [filmId, data, new Date(watchByDate), userId, film_api_id, filmName, date]);
             res.send(filmId);
         } catch (e) {
             console.log("error logging in ", e)
-            res.send({ status: 500, message: `Something went wrong at our end.` })
+            res.status(500).send({ status: 500, message: `Something went wrong at our end.` })
         } finally {
             client.release();
         }
@@ -74,7 +74,7 @@ router.put("/updateFilm", async (req, res) => {
         res.send(rowCount);
     } catch (e) {
         console.log("error logging in ", e)
-        res.send({ status: 500, message: `Something went wrong at our end.` })
+        res.status(500).send({ status: 500, message: `Something went wrong at our end.` })
     } finally {
         client.release();
     }
@@ -89,6 +89,10 @@ router.post("/addDummyData", async (req, res) => {
                 .then((x) => {
                     x = JSON.parse(x);
                     x.results.map(async (film) => {
+                        // rp.get(`${process.env.MOVIE_DB_API_URL}movie/film.id?api_key=${process.env.MOVIE_DB_API_KEY}&language=en-US`).then((y) => {
+                        // rp.get(`https://api.themoviedb.org/3/movie/338952?api_key=8c3f8c5c52dc75f2a84a6ed98c8ce3a7&language=en-US`).then((y) => {
+                        //     console.log("y ", y)
+                        // })
                         const date = new Date();
                         date.setDate(date.getDate() + Math.floor((Math.random() * 100) + 1));
                         const formattedFilm = {
@@ -99,15 +103,15 @@ router.post("/addDummyData", async (req, res) => {
                             "additionalNotes": "Test film"
                         };
                         const filmId = uuidv4();
-                        // console.log("the film ", formattedFilm)
                         await db.query(`insert into films(id, film_details, watch_by, user_id, film_api_id, film_name, release_date) values($1, $2, $3, $4, $5, $6, $7)`, [filmId, formattedFilm, new Date(date), userId, film.id, film.title, new Date(film.release_date)]);
                     })
                 })
         }
+
         res.send("Films added")
     } catch (e) {
         console.log("error adding dummy data ", e)
-        res.send({ status: 500, message: `Something went wrong at our end.` })
+        res.status(500).send({ status: 500, message: `Something went wrong at our end.` })
     } finally {
         client.release();
     }
