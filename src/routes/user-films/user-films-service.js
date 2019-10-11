@@ -28,6 +28,7 @@ router.get("/", async (req, res) => {
             r.film_details.id = r.id;
             r.film_details.name = r.film_name;
             r.film_details.date = new Date(r.release_date).toLocaleString();
+            r.film_details.rating = r.rating;
             return r.film_details;
         })
 
@@ -42,7 +43,7 @@ router.get("/", async (req, res) => {
 
 router.post("/addFilm", async (req, res) => {
     const { userId, body } = req;
-    const { data, film_api_id, watchByDate, filmName, date } = body;
+    const { data, film_api_id, watchByDate, filmName, date, rating } = body;
     const filmExists = false;
     if (filmExists) {
         console.log("the film exists ", film_api_id, " name ", filmName);
@@ -51,8 +52,8 @@ router.post("/addFilm", async (req, res) => {
         const client = await db.client();
         try {
             const filmId = uuidv4();
-            await db.query(`insert into films(id, film_details, watch_by, user_id, film_api_id, film_name, release_date) 
-                             values($1, $2, $3, $4, $5, $6, $7)`, [filmId, data, new Date(watchByDate), userId, film_api_id, filmName, date]);
+            await db.query(`insert into films(id, film_details, watch_by, user_id, film_api_id, film_name, release_date, rating) 
+                             values($1, $2, $3, $4, $5, $6, $7, $8)`, [filmId, data, new Date(watchByDate), userId, film_api_id, filmName, date, rating]);
             res.send(filmId);
         } catch (e) {
             console.log("error logging in ", e)
@@ -97,15 +98,24 @@ router.post("/addDummyData", async (req, res) => {
                         date.setDate(date.getDate() + Math.floor((Math.random() * 100) + 1));
                         const formattedFilm = {
                             "genres": film.genre_ids.map((x) => convertGenreToId(x)),
-                            "rating": film.vote_average,
                             "summary": film.overview,
                             "photoUrl": film.poster_path ? film.poster_path : film.backdrop_path,
                             "additionalNotes": "Test film"
                         };
                         const filmId = uuidv4();
-                        await db.query(`insert into films(id, film_details, watch_by, user_id, film_api_id, film_name, release_date) values($1, $2, $3, $4, $5, $6, $7)`, [filmId, formattedFilm, new Date(date), userId, film.id, film.title, new Date(film.release_date)]);
+                        await db.query(`insert into films(id, film_details, watch_by, user_id, film_api_id, film_name, release_date, rating) 
+                        values($1, $2, $3, $4, $5, $6, $7, $8)`,
+                            [filmId, formattedFilm, new Date(date), userId, film.id, film.title, new Date(film.release_date), film.vote_average]);
                     })
                 })
+                // console.log("start")
+                // const end = Date.now() + 10000;
+                // while (Date.now() < end) {
+                //     //this is here because the movie api we are using has a hard limit 
+                //     //on requests that can be made in a few seconds
+                //     //having the event loop blocking timer allows us to bypass this
+                // }
+                // console.log("end")
         }
 
         res.send("Films added")
@@ -213,4 +223,10 @@ convertGenreToId = (genreId) => {
             "name": "Western"
         }
     ].find(x => x.id === genreId).name
+}
+
+function sleep(ms) {
+    return new Promise(resolve => {
+        setTimeout(resolve, ms)
+    })
 }
