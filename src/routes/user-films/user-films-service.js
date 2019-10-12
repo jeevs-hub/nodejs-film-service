@@ -44,7 +44,7 @@ router.get("/", async (req, res) => {
 
 router.post("/addFilm", async (req, res) => {
     const { userId, body } = req;
-    const { data, film_api_id, watchByDate, filmName, date, rating } = body;
+    const { data, film_api_id, watchByDate, filmName, date, rating, runtime } = body;
     const filmExists = false;
     if (filmExists) {
         console.log("the film exists ", film_api_id, " name ", filmName);
@@ -53,8 +53,8 @@ router.post("/addFilm", async (req, res) => {
         const client = await db.client();
         try {
             const filmId = uuidv4();
-            await db.query(`insert into films(id, film_details, watch_by, user_id, film_api_id, film_name, release_date, rating) 
-                             values($1, $2, $3, $4, $5, $6, $7, $8)`, [filmId, data, new Date(watchByDate), userId, film_api_id, filmName, date, rating]);
+            await db.query(`insert into films(id, film_details, watch_by, user_id, film_api_id, film_name, release_date, rating, runtime) 
+                             values($1, $2, $3, $4, $5, $6, $7, $8)`, [filmId, data, new Date(watchByDate), userId, film_api_id, filmName, date, rating, runtime]);
             res.send(filmId);
         } catch (e) {
             console.log("error logging in ", e)
@@ -108,6 +108,8 @@ router.post("/addDummyData", async (req, res) => {
                                 await db.query(`insert into films(id, film_details, watch_by, user_id, film_api_id, film_name, release_date, rating, runtime) 
                                 values($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
                                     [filmId, formattedFilm, new Date(date), userId, film.id, film.title, new Date(film.release_date), film.vote_average, film.runtime]);    
+                                
+                                await db.query(`update users SET rand_film_added = rand_film_added || $1 where id = $2`, [pageNum, userId])
                             });
                         });
                 });
@@ -217,7 +219,6 @@ convertGenreToId = (genreId) => {
         }
     ].find(x => x.id === genreId).name
 }
-
 getPageNum = async () => {
     let randNum;
     let foundRandNum = false;
