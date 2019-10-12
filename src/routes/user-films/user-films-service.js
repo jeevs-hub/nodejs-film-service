@@ -29,6 +29,7 @@ router.get("/", async (req, res) => {
             r.film_details.name = r.film_name;
             r.film_details.date = new Date(r.release_date).toLocaleString();
             r.film_details.rating = r.rating;
+            r.film_details.runtime = r.runtime;
             return r.film_details;
         })
 
@@ -84,41 +85,33 @@ router.put("/updateFilm", async (req, res) => {
 router.post("/addDummyData", async (req, res) => {
     const { userId } = req;
     const client = await db.client();
-    try {
-        for (let i = 0; i < 5; i++) {
-            rp.get(`${process.env.MOVIE_DB_API_URL}discover/movie?api_key=${process.env.MOVIE_DB_API_KEY}&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=${i + 1}`)
+    try {            
+            const pageNum = await getPageNum();
+            console.log("the page num is ", pageNum);
+            rp.get(`${process.env.MOVIE_DB_API_URL}discover/movie?api_key=${process.env.MOVIE_DB_API_KEY}&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=${pageNum}`)
                 .then((x) => {
-                    x = JSON.parse(x);
-                    x.results.map(async (film) => {
-                        // rp.get(`${process.env.MOVIE_DB_API_URL}movie/film.id?api_key=${process.env.MOVIE_DB_API_KEY}&language=en-US`).then((y) => {
-                        // rp.get(`https://api.themoviedb.org/3/movie/338952?api_key=8c3f8c5c52dc75f2a84a6ed98c8ce3a7&language=en-US`).then((y) => {
-                        //     console.log("y ", y)
-                        // })
-                        const date = new Date();
-                        date.setDate(date.getDate() + Math.floor((Math.random() * 100) + 1));
-                        const formattedFilm = {
-                            "genres": film.genre_ids.map((x) => convertGenreToId(x)),
-                            "summary": film.overview,
-                            "photoUrl": film.poster_path ? film.poster_path : film.backdrop_path,
-                            "additionalNotes": "Test film"
-                        };
-                        const filmId = uuidv4();
-                        await db.query(`insert into films(id, film_details, watch_by, user_id, film_api_id, film_name, release_date, rating) 
-                        values($1, $2, $3, $4, $5, $6, $7, $8)`,
-                            [filmId, formattedFilm, new Date(date), userId, film.id, film.title, new Date(film.release_date), film.vote_average]);
-                    })
-                })
-                // console.log("start")
-                // const end = Date.now() + 10000;
-                // while (Date.now() < end) {
-                //     //this is here because the movie api we are using has a hard limit 
-                //     //on requests that can be made in a few seconds
-                //     //having the event loop blocking timer allows us to bypass this
-                // }
-                // console.log("end")
-        }
-
-        res.send("Films added")
+                    //get more information such as runtime
+                        x = JSON.parse(x);
+                        x.results.map(async (film) => {
+                            rp.get(`${process.env.MOVIE_DB_API_URL}movie/${film.id}?api_key=${process.env.MOVIE_DB_API_KEY}&language=en-US`).then(async (y) => {
+                                y = JSON.parse(y);
+                                film.runtime = y.runtime;
+                                const date = new Date();
+                                date.setDate(date.getDate() + Math.floor((Math.random() * 100) + 1));
+                                const formattedFilm = {
+                                    "genres": film.genre_ids.map((x) => convertGenreToId(x)),
+                                    "summary": film.overview,
+                                    "photoUrl": film.poster_path ? film.poster_path : film.backdrop_path,
+                                    "additionalNotes": "Test film"
+                                };
+                                const filmId = uuidv4();
+                                await db.query(`insert into films(id, film_details, watch_by, user_id, film_api_id, film_name, release_date, rating, runtime) 
+                                values($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+                                    [filmId, formattedFilm, new Date(date), userId, film.id, film.title, new Date(film.release_date), film.vote_average, film.runtime]);    
+                            });
+                        });
+                });
+        res.send("Films added ")
     } catch (e) {
         console.log("error adding dummy data ", e)
         res.status(500).send({ status: 500, message: `Something went wrong at our end.` })
@@ -225,8 +218,14 @@ convertGenreToId = (genreId) => {
     ].find(x => x.id === genreId).name
 }
 
-function sleep(ms) {
-    return new Promise(resolve => {
-        setTimeout(resolve, ms)
-    })
+getPageNum = async () => {
+    let randNum;
+    let foundRandNum = false;
+    while(!foundRandNum) {
+        randNum = Math.round(Math.random() * (500 - 1) + 1);
+        const { rowCount } = await db.query(`select rand_film_added from users where id = '84d3542d-3b3e-4aa5-bbab-69829f248be4' and $1=ANY(rand_film_added)`, [randNum]);
+        foundRandNum = rowCount === 0;
+        console.log("asdfg ", randNum, rowCount);
+    }
+    return randNum;
 }
