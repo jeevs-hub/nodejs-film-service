@@ -54,7 +54,7 @@ router.post("/addFilm", async (req, res) => {
         try {
             const filmId = uuidv4();
             await db.query(`insert into films(id, film_details, watch_by, user_id, film_api_id, film_name, release_date, rating, runtime) 
-                             values($1, $2, $3, $4, $5, $6, $7, $8)`, [filmId, data, new Date(watchByDate), userId, film_api_id, filmName, date, rating, runtime]);
+                             values($1, $2, $3, $4, $5, $6, $7, $8, $9)`, [filmId, data, new Date(watchByDate), userId, film_api_id, filmName, date, rating, runtime]);
             res.send(filmId);
         } catch (e) {
             console.log("error logging in ", e)
