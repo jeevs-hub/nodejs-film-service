@@ -87,7 +87,6 @@ router.post("/addDummyData", async (req, res) => {
     const client = await db.client();
     try {            
             const pageNum = await getPageNum();
-            console.log("the page num is ", pageNum);
             rp.get(`${process.env.MOVIE_DB_API_URL}discover/movie?api_key=${process.env.MOVIE_DB_API_KEY}&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=${pageNum}`)
                 .then((x) => {
                     //get more information such as runtime
@@ -226,7 +225,6 @@ getPageNum = async () => {
         randNum = Math.round(Math.random() * (500 - 1) + 1);
         const { rowCount } = await db.query(`select rand_film_added from users where id = '84d3542d-3b3e-4aa5-bbab-69829f248be4' and $1=ANY(rand_film_added)`, [randNum]);
         foundRandNum = rowCount === 0;
-        console.log("asdfg ", randNum, rowCount);
     }
     return randNum;
 }
